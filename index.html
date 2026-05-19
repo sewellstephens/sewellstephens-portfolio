@@ -10,6 +10,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <!-- Responsiveness -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script>
+        function handleNewsletterSignup(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            fetch(`https://n8n.anchorclick.com/webhook/newsletter`, {
+                method: 'POST',
+                body: JSON.stringify({ email: email }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById('confirmation-message').innerHTML = 'Please check your email for a confirmation link.';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('confirmation-message').innerHTML = 'An error occurred. Please try again.';
+            });
+        }
+    </script>
 </head>
 <body>
     <main class="max-width">
@@ -29,10 +49,11 @@
             <div class="newsletter-signup-content">
                 <h3>Newsletter</h3>
                 <p>Subscribe to my newsletter to get the latest updates and news.</p>
-                <form netlify name="newsletter-signup" method="POST">
-                    <input type="email" name="email" placeholder="Enter your email" required>
-                    <button type="submit">Subscribe</button>
+                <form onsubmit="handleNewsletterSignup(event)" id="newsletter-signup-form" method="POST">
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    <button type="submit" id="subscribe-button">Subscribe</button>
                 </form>
+                <p style="text-align: center; margin-top: 20px;" id="confirmation-message">Please check your email for a confirmation link.</p>
             </div>
         </section>
 
