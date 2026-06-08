@@ -1,0 +1,81 @@
+---
+interface Experience {
+  role: string;
+  company: string;
+  url?: string;
+  date: string;
+  isPast?: boolean;
+  description: string;
+}
+
+const experiences: Experience[] = [
+  {
+    role: 'Founder',
+    company: 'Krastie AI',
+    url: 'https://krastie.ai',
+    date: '2024–Present',
+    description:
+      'AI visibility platform that helps businesses understand and improve how they show up in AI-generated answers (e.g. ChatGPT, Gemini).',
+  },
+  {
+    role: 'Founder',
+    company: 'Anchorclick',
+    url: 'https://anchorclick.com',
+    date: '2023–Present',
+    description:
+      'Anchorclick is an AI solutions provider specializing in the development and implementation of AI automation solutions.',
+  },
+  {
+    role: 'Founder',
+    company: 'Amortec',
+    date: '2024-2025',
+    isPast: true,
+    description:
+      'Amortec provides AI observability tools tailored for founders building AI-driven software.',
+  },
+  {
+    role: 'Founder',
+    company: 'Obeatow',
+    date: '2022-2024',
+    isPast: true,
+    description:
+      'Obeatow is a visual feedback and roadmap platform that helps teams collect, organize, and prioritize user feedback while turning it into clear, actionable product roadmaps.',
+  },
+  {
+    role: 'Founder',
+    company: 'Rototer',
+    date: '2020–2021',
+    isPast: true,
+    description:
+      'Rototer was a GDPR compliance software that offered tools to help businesses manage data privacy requirements, handle user consent, and stay aligned with evolving regulatory standards.',
+  },
+];
+---
+
+<section class="experience">
+  <h3>Experience</h3>
+  {
+    experiences.map((item) => (
+      <div class="experience-item">
+        <div class="experience-details">
+          <div class="experience-details-header">
+            <h4>
+              {item.role} -{' '}
+              {item.url ? (
+                <a href={item.url} target="_blank" rel="noopener noreferrer">
+                  {item.company}
+                </a>
+              ) : (
+                item.company
+              )}
+            </h4>
+            <span class:list={['experience-date', { 'experience-date--past': item.isPast }]}>
+              {item.date}
+            </span>
+          </div>
+          <p>{item.description}</p>
+        </div>
+      </div>
+    ))
+  }
+</section>

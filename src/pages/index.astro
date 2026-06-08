@@ -1,0 +1,43 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import NewsletterSignup from '../components/NewsletterSignup.astro';
+import ExperienceSection from '../components/ExperienceSection.astro';
+---
+
+<Layout title="Home - Sewell Stephens">
+  <main>
+    <section class="profile">
+      <img src="/pic.webp" alt="Sewell Stephens" class="profile__image" width="100" height="100" />
+      <h2>Hi, I'm Sewell</h2>
+      <p>
+        I'm a software dev and business owner with years of experience creating innovative
+        solutions and building products.
+      </p>
+    </section>
+
+    <SocialLinks />
+
+    <NewsletterSignup />
+
+    <section class="about">
+      <h3>About Me</h3>
+      <p>
+        Hi, I'm Sewell. I'm a software developer and business owner with years of experience
+        creating innovative solutions and building products. I first learned how to code at 12 and
+        have since built a variety of products using my knowledge and skills.
+      </p>
+      <p>
+        I'm passionate about leveraging technology to solve real-world problems and create
+        meaningful impact, and of course make money in the process. If you are a brand looking to
+        innovate, let's connect!
+      </p>
+    </section>
+
+    <ExperienceSection />
+
+    <footer class="site-footer">
+      <p>Copyright &copy; {new Date().getFullYear()} Sewell Stephens</p>
+    </footer>
+  </main>
+</Layout>
