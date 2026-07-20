@@ -148,12 +148,23 @@ a:hover {
 
 .newsletter-signup__form {
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   gap: 10px;
   width: 100%;
+  position: relative;
 }
 
-.newsletter-signup__form input {
+.newsletter-signup__honeypot {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.newsletter-signup__form input[type='email'] {
   flex: 1;
   min-width: 0;
   padding: 10px;
@@ -162,7 +173,7 @@ a:hover {
   font: inherit;
 }
 
-.newsletter-signup__form input:focus {
+.newsletter-signup__form input[type='email']:focus {
   outline: none;
   border-color: var(--color-accent-strong);
 }
@@ -181,6 +192,15 @@ a:hover {
 
 .newsletter-signup__form button:hover {
   background-color: var(--color-accent-hover);
+}
+
+.newsletter-signup__form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.newsletter-signup__turnstile {
+  flex: 1 1 100%;
 }
 
 .newsletter-signup__confirmation {

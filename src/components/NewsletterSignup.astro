@@ -1,41 +1,125 @@
+---
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+---
+
 <section class="newsletter-signup">
   <div class="newsletter-signup__content">
     <h3>Newsletter</h3>
     <p class="newsletter-signup__description">Subscribe to my newsletter to get the latest updates and news.</p>
-    <form class="newsletter-signup__form" id="newsletter-signup-form">
-      <input type="email" id="email" name="email" placeholder="Enter your email" required />
+    <form class="newsletter-signup__form" id="newsletter-signup-form" novalidate>
+      <label class="newsletter-signup__honeypot" for="website" aria-hidden="true">
+        Website
+        <input
+          type="text"
+          id="website"
+          name="website"
+          tabindex="-1"
+          autocomplete="off"
+        />
+      </label>
+      <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email" />
       <button type="submit" id="subscribe-button">Subscribe</button>
+      {
+        turnstileSiteKey ? (
+          <div
+            class="cf-turnstile newsletter-signup__turnstile"
+            data-sitekey={turnstileSiteKey}
+            data-theme="light"
+          />
+        ) : null
+      }
     </form>
     <p class="newsletter-signup__confirmation" id="confirmation-message" aria-live="polite"></p>
   </div>
 </section>
 
+{
+  turnstileSiteKey ? (
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  ) : null
+}
+
 <script>
   const form = document.getElementById('newsletter-signup-form');
   const confirmationMessage = document.getElementById('confirmation-message');
+  const subscribeButton = document.getElementById('subscribe-button');
+
+  const setMessage = (message: string) => {
+    if (confirmationMessage) {
+      confirmationMessage.textContent = message;
+    }
+  };
+
+  const getTurnstileToken = () => {
+    const input = form?.querySelector<HTMLInputElement>(
+      'input[name="cf-turnstile-response"]',
+    );
+    return input?.value?.trim() ?? '';
+  };
 
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const emailInput = document.getElementById('email');
-    const email = emailInput instanceof HTMLInputElement ? emailInput.value : '';
+    const honeypotInput = document.getElementById('website');
+    const email = emailInput instanceof HTMLInputElement ? emailInput.value.trim() : '';
+    const website =
+      honeypotInput instanceof HTMLInputElement ? honeypotInput.value.trim() : '';
+    const turnstileToken = getTurnstileToken();
+
+    if (!email) {
+      setMessage('Please enter a valid email address.');
+      return;
+    }
+
+    if (!turnstileToken) {
+      setMessage('Please complete the verification challenge.');
+      return;
+    }
+
+    if (subscribeButton instanceof HTMLButtonElement) {
+      subscribeButton.disabled = true;
+    }
+
+    setMessage('Subscribing...');
 
     try {
-      const response = await fetch('https://n8n.anchorclick.com/webhook/newsletter', {
+      const response = await fetch('/.netlify/functions/newsletter', {
         method: 'POST',
-        body: JSON.stringify({ email }),
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          website,
+          turnstileToken,
+        }),
       });
 
-      await response.json();
+      const data = (await response.json().catch(() => ({}))) as {
+        error?: string;
+      };
 
-      if (confirmationMessage) {
-        confirmationMessage.textContent = 'Please check your email for a confirmation link.';
+      if (!response.ok) {
+        throw new Error(data.error || 'Subscription failed');
+      }
+
+      setMessage('Please check your email for a confirmation link.');
+      form.reset();
+
+      const turnstile = (window as Window & {
+        turnstile?: { reset: (widget?: HTMLElement) => void };
+      }).turnstile;
+      const widget = form.querySelector<HTMLElement>('.cf-turnstile');
+      if (turnstile && widget) {
+        turnstile.reset(widget);
       }
     } catch (error) {
-      console.error('Error:', error);
-
-      if (confirmationMessage) {
-        confirmationMessage.textContent = 'An error occurred. Please try again.';
+      console.error('Newsletter signup error:', error);
+      setMessage('An error occurred. Please try again.');
+    } finally {
+      if (subscribeButton instanceof HTMLButtonElement) {
+        subscribeButton.disabled = false;
       }
     }
   });
