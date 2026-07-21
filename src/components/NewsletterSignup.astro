@@ -1,5 +1,4 @@
 ---
-const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 ---
 
 <section class="newsletter-signup">
@@ -19,42 +18,21 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       </label>
       <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email" />
       <button type="submit" id="subscribe-button">Subscribe</button>
-      {
-        turnstileSiteKey ? (
-          <div
-            class="cf-turnstile newsletter-signup__turnstile"
-            data-sitekey={turnstileSiteKey}
-            data-theme="light"
-          />
-        ) : null
-      }
     </form>
     <p class="newsletter-signup__confirmation" id="confirmation-message" aria-live="polite"></p>
   </div>
 </section>
 
-{
-  turnstileSiteKey ? (
-    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  ) : null
-}
-
 <script>
   const form = document.getElementById('newsletter-signup-form');
   const confirmationMessage = document.getElementById('confirmation-message');
   const subscribeButton = document.getElementById('subscribe-button');
+  const formLoadedAt = Date.now();
 
   const setMessage = (message: string) => {
     if (confirmationMessage) {
       confirmationMessage.textContent = message;
     }
-  };
-
-  const getTurnstileToken = () => {
-    const input = form?.querySelector<HTMLInputElement>(
-      'input[name="cf-turnstile-response"]',
-    );
-    return input?.value?.trim() ?? '';
   };
 
   form?.addEventListener('submit', async (event) => {
@@ -65,15 +43,9 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     const email = emailInput instanceof HTMLInputElement ? emailInput.value.trim() : '';
     const website =
       honeypotInput instanceof HTMLInputElement ? honeypotInput.value.trim() : '';
-    const turnstileToken = getTurnstileToken();
 
     if (!email) {
       setMessage('Please enter a valid email address.');
-      return;
-    }
-
-    if (!turnstileToken) {
-      setMessage('Please complete the verification challenge.');
       return;
     }
 
@@ -92,7 +64,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
         body: JSON.stringify({
           email,
           website,
-          turnstileToken,
+          formLoadedAt,
+          submittedAt: Date.now(),
         }),
       });
 
@@ -105,14 +78,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       }
 
       setMessage('Please check your email for a confirmation link.');
-      form.reset();
-
-      const turnstile = (window as Window & {
-        turnstile?: { reset: (widget?: HTMLElement) => void };
-      }).turnstile;
-      const widget = form.querySelector<HTMLElement>('.cf-turnstile');
-      if (turnstile && widget) {
-        turnstile.reset(widget);
+      if (form instanceof HTMLFormElement) {
+        form.reset();
       }
     } catch (error) {
       console.error('Newsletter signup error:', error);

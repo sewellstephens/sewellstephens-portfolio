@@ -7,44 +7,25 @@ const json = (statusCode, body) => ({
 });
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_SUBMIT_DELAY_MS = 3000;
+const MAX_SUBMIT_DELAY_MS = 24 * 60 * 60 * 1000;
 
-const getClientIp = (event) =>
-  event.headers['x-nf-client-connection-ip'] ||
-  event.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
-  undefined;
-
-const verifyTurnstile = async (token, remoteip) => {
-  const secret = process.env.TURNSTILE_SECRET_KEY;
-
-  if (!secret) {
-    throw new Error('TURNSTILE_SECRET_KEY is not configured');
+const parseTimestamp = (value) => {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return null;
   }
 
-  const body = new URLSearchParams({
-    secret,
-    response: token,
-  });
+  return value;
+};
 
-  if (remoteip) {
-    body.set('remoteip', remoteip);
+const isValidSubmissionTiming = (formLoadedAt, submittedAt) => {
+  if (formLoadedAt === null || submittedAt === null) {
+    return false;
   }
 
-  const response = await fetch(
-    'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-    {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-      },
-      body,
-    },
-  );
+  const elapsed = submittedAt - formLoadedAt;
 
-  if (!response.ok) {
-    throw new Error(`Turnstile verification failed with status ${response.status}`);
-  }
-
-  return response.json();
+  return elapsed >= MIN_SUBMIT_DELAY_MS && elapsed <= MAX_SUBMIT_DELAY_MS;
 };
 
 export const handler = async (event) => {
@@ -73,10 +54,10 @@ export const handler = async (event) => {
   }
 
   const email = typeof payload.email === 'string' ? payload.email.trim() : '';
-  const turnstileToken =
-    typeof payload.turnstileToken === 'string' ? payload.turnstileToken.trim() : '';
   const honeypot =
     typeof payload.website === 'string' ? payload.website.trim() : '';
+  const formLoadedAt = parseTimestamp(payload.formLoadedAt);
+  const submittedAt = parseTimestamp(payload.submittedAt);
 
   // Bots that fill the honeypot get a fake success response.
   if (honeypot) {
@@ -87,19 +68,8 @@ export const handler = async (event) => {
     return json(400, { error: 'A valid email address is required' });
   }
 
-  if (!turnstileToken) {
-    return json(400, { error: 'Turnstile verification is required' });
-  }
-
-  try {
-    const verification = await verifyTurnstile(turnstileToken, getClientIp(event));
-
-    if (!verification.success) {
-      return json(403, { error: 'Turnstile verification failed' });
-    }
-  } catch (error) {
-    console.error('Turnstile verification error:', error);
-    return json(500, { error: 'Unable to verify Turnstile token' });
+  if (!isValidSubmissionTiming(formLoadedAt, submittedAt)) {
+    return json(403, { error: 'Subscription failed' });
   }
 
   const webhookUrl =

@@ -199,10 +199,6 @@ a:hover {
   cursor: not-allowed;
 }
 
-.newsletter-signup__turnstile {
-  flex: 1 1 100%;
-}
-
 .newsletter-signup__confirmation {
   text-align: center;
   margin: 0;
