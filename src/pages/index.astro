@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import SocialLinks from '../components/SocialLinks.astro';
 import NewsletterSignup from '../components/NewsletterSignup.astro';
 import ExperienceSection from '../components/ExperienceSection.astro';
+import { Content as AboutContent } from '../content/about.md';
 ---
 
 <Layout title="Home - Sewell Stephens">
@@ -11,8 +12,7 @@ import ExperienceSection from '../components/ExperienceSection.astro';
       <img src="/profile-picture.jpg" alt="Sewell Stephens" class="profile__image" width="100" height="100" />
       <h2>Hi, I'm Sewell</h2>
       <p>
-        I'm a software dev and business owner with years of experience creating innovative
-        solutions and building products.
+        I'm the founder of Krastie AI. AI visibility & content platform.
       </p>
     </section>
 
@@ -22,16 +22,9 @@ import ExperienceSection from '../components/ExperienceSection.astro';
 
     <section class="about">
       <h3>About Me</h3>
-      <p>
-        Hi, I'm Sewell. I'm a software developer and business owner with years of experience
-        creating innovative solutions and building products. I first learned how to code at 12 and
-        have since built a variety of products using my knowledge and skills.
-      </p>
-      <p>
-        I'm passionate about leveraging technology to solve real-world problems and create
-        meaningful impact, and of course make money in the process. If you are a brand looking to
-        innovate, let's connect!
-      </p>
+      <div class="about__body">
+        <AboutContent />
+      </div>
     </section>
 
     <ExperienceSection />
