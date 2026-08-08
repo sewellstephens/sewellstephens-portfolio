@@ -37,17 +37,13 @@
     <section class="newsletter" aria-labelledby="newsletter-heading">
       <h2 id="newsletter-heading">Newsletter</h2>
       <form class="newsletter-form" data-ac-form="b9907125b2ab33f78c2c7e477fb75f91" novalidate>
-        <label class="field">
-          <span class="field-label">Email</span>
-          <input name="email" type="email" placeholder="you@example.com" required />
-        </label>
-
-        <label class="consent">
-          <input type="checkbox" name="consentEmail" />
-          <span>I agree to receive marketing emails</span>
-        </label>
-
-        <button type="submit">Subscribe</button>
+        <div class="newsletter-row">
+          <label class="field">
+            <span class="visually-hidden">Email</span>
+            <input name="email" type="email" placeholder="you@example.com" required />
+          </label>
+          <button type="submit">Subscribe</button>
+        </div>
         <p class="form-status" data-ac-status></p>
       </form>
       <script src="https://api.anchorclick.com/v1/public/embed.js" data-ac-api="https://api.anchorclick.com" async></script>
