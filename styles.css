@@ -107,6 +107,10 @@ section:last-of-type {
   padding-bottom: 0.5rem;
 }
 
+.about p:last-child {
+  margin-bottom: 0;
+}
+
 h2 {
   margin: 0 0 1rem;
   font-size: 0.8rem;
